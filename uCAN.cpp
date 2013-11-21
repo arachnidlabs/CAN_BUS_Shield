@@ -22,6 +22,9 @@ void uCAN_IMPL::receive() {
 	uint8_t len = 0;
 	MessageID id;
 
+	if(CAN.checkReceive() != CAN_MSGAVAIL)
+		return;
+	
 	CAN.readMsgBuf(&len, rxbuf);
 	id.raw = CAN.getCanId();
 
