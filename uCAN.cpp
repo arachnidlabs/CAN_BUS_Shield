@@ -51,7 +51,7 @@ void uCAN_IMPL::handleYARP(MessageID id, uint8_t len, uint8_t *data) {
 		if(id.unicast.recipient != this->node_id && id.unicast.recipient != UCAN_BROADCAST_NODE_ID)
 			// Not addressed to us
 			return;
-		if((id.unicast.subfields & 0x08) && memcmp(&this->hardware_id, data, 6) == 0)
+		if((id.unicast.subfields & 0x08) && memcmp(&this->hardware_id, data, 6) != 0)
 			// Not addressed to our hardware ID
 			return;
 
