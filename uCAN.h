@@ -26,6 +26,7 @@
 #define UCAN_PRIORITY_HIGH 1
 #define UCAN_PRIORITY_NORMAL 2
 #define UCAN_PRIORITY_LOW 3
+#define UCAN_NODE_NOT_FOUND -1
 
 typedef union {
   struct {
@@ -50,34 +51,46 @@ typedef union {
 
 typedef struct {
   uint8_t address[6];
-} HardwareAddress;
+} HardwareID;
 
+typedef struct {
+  MessageID id;
+  uint8_t len;
+  uint8_t body[8];
+} uCANMessage;
 
-typedef void (*PongHandler)(HardwareAddress hardware_id, uint8_t node_id);
+typedef int16_t NodeAddress;
+
+typedef void (*PongHandler)(HardwareID hardware_id, uint8_t node_id);
 typedef void (*AddressChangeHandler)(uint8_t node_id);
 
 class uCAN_IMPL {
 private:
     uint8_t node_id;
-    HardwareAddress hardware_id;
-    PongHandler pong_handler;
+    HardwareID hardware_id;
     AddressChangeHandler address_change_handler;
+    uint16_t timeout;
+
+    bool tryReceive(uCANMessage *message);
 
 protected:
-    void handleYARP(MessageID id, uint8_t len, uint8_t *message);
+    MessageID makeUnicastMessageID(uint8_t priority, uint8_t protocol, uint8_t subfields, uint8_t recipient);
+    MessageID makeBroadcastMessageID(uint8_t priority, uint8_t protocol, uint16_t subfields);
+    bool handleYARP(uCANMessage *message);
+    void send(MessageID id, uint8_t len, uint8_t *message);
 
 public:
-    uint8_t begin(HardwareAddress hardware_id, uint8_t node_id);
-    void send(MessageID id, uint8_t len, uint8_t *message);
-    void receive();
+    uCAN_IMPL();
+    uint8_t begin(HardwareID hardware_id, uint8_t node_id);
+    bool receive();
+    void setTimeout(uint16_t timeout);
 
     // YARP methods
-    void ping(uint8_t node_id);
-    void ping(uint8_t node_id, uint8_t priority);
-    void pingHardwareID(HardwareAddress hardware_id);
-    void pingHardwareID(HardwareAddress hardware_id, uint8_t priority);
-    void registerPongHandler(PongHandler handler);
+    NodeAddress getNodeFromNodeID(uint8_t node_id);
+    NodeAddress getNodeFromHardwareID(HardwareID hardware_id);
+    bool ping(NodeAddress node);
+    bool ping(NodeAddress node, HardwareID *hardware_id);
     void registerAddressChangeHandler(AddressChangeHandler handler);
-    void setAddress(HardwareAddress hardware_id, uint8_t node_id);
+    void setAddress(HardwareID hardware_id, uint8_t node_id);
 };
 extern uCAN_IMPL uCAN;
