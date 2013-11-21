@@ -48,14 +48,18 @@ typedef union {
   uint32_t raw;
 } MessageID;
 
+typedef struct {
+  uint8_t address[6];
+} HardwareAddress;
 
-typedef void (*PongHandler)(uint64_t hardware_id, uint8_t node_id);
+
+typedef void (*PongHandler)(HardwareAddress hardware_id, uint8_t node_id);
 typedef void (*AddressChangeHandler)(uint8_t node_id);
 
 class uCAN_IMPL {
 private:
     uint8_t node_id;
-    uint64_t hardware_id;
+    HardwareAddress hardware_id;
     PongHandler pong_handler;
     AddressChangeHandler address_change_handler;
 
@@ -63,17 +67,17 @@ protected:
     void handleYARP(MessageID id, uint8_t len, uint8_t *message);
 
 public:
-    uint8_t begin(uint64_t hardware_id, uint8_t node_id);
+    uint8_t begin(HardwareAddress hardware_id, uint8_t node_id);
     void send(MessageID id, uint8_t len, uint8_t *message);
     void receive();
 
     // YARP methods
     void ping(uint8_t node_id);
     void ping(uint8_t node_id, uint8_t priority);
-    void pingHardwareID(uint64_t hardware_id);
-    void pingHardwareID(uint64_t hardware_id, uint8_t priority);
+    void pingHardwareID(HardwareAddress hardware_id);
+    void pingHardwareID(HardwareAddress hardware_id, uint8_t priority);
     void registerPongHandler(PongHandler handler);
     void registerAddressChangeHandler(AddressChangeHandler handler);
-    void setAddress(uint64_t hardware_id, uint8_t node_id);
+    void setAddress(HardwareAddress hardware_id, uint8_t node_id);
 };
 extern uCAN_IMPL uCAN;
