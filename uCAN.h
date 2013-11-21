@@ -29,20 +29,20 @@
 
 typedef union {
   struct {
-    unsigned int priority : 2;
-    unsigned int protocol : 4;
-    unsigned int broadcast : 1;
-    unsigned int subfields : 6;
-    unsigned int recipient : 8;
     unsigned int sender : 8;
+    unsigned int recipient : 8;
+    unsigned int subfields : 6;
+    unsigned int broadcast : 1;
+    unsigned int protocol : 4;
+    unsigned int priority : 2;
   } unicast;
 
   struct {
-    unsigned int priority : 2;
-    unsigned int protocol : 4;
-    unsigned int broadcast : 1;
-    unsigned int subfields : 14;
     unsigned int sender : 8;
+    unsigned int subfields : 14;
+    unsigned int broadcast : 1;
+    unsigned int protocol : 4;
+    unsigned int priority : 2;
   } broadcast;
 
   uint32_t raw;
