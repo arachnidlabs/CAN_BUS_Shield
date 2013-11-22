@@ -110,7 +110,7 @@ NodeAddress uCAN_IMPL::getNodeFromHardwareID(HardwareID hardware_id) {
 		sizeof(HardwareID), hardware_id.address);
 
 	uint32_t start = millis();
-	while(this.timeout > (uint32_t)(millis() - start)) {
+	while(this->timeout > (uint32_t)(millis() - start)) {
 		if(CAN.checkReceive() == CAN_MSGAVAIL) {
 			uCANMessage message;
 			if(this->tryReceive(&message)) {
@@ -136,7 +136,7 @@ bool uCAN_IMPL::ping(NodeAddress node, HardwareID *hardware_id) {
 	this->send(this->makeUnicastMessageID(UCAN_PRIORITY_NORMAL, 0, 0x20, node), 0, NULL);
 
 	uint32_t start = millis();
-	while(this.timeout > (uint32_t)(millis() - start)) {
+	while(this->timeout > (uint32_t)(millis() - start)) {
 		if(CAN.checkReceive() == CAN_MSGAVAIL) {
 			uCANMessage message;
 			if(this->tryReceive(&message)) {
