@@ -34,9 +34,16 @@ uint8_t uCAN_IMPL::begin(HardwareID hardware_id, uint8_t node_id) {
 	this->node_id = node_id;
 
 	uint8_t ret = CAN.begin(CAN_125KBPS);
-	this->ping(this->node_id);
+	if(ret != CAN_OK)
+		return ret;
 
-	//TODO: Proper address assignment
+	uint8_t start_node_id = node_id; // Detect node ID assignment
+	while(this->ping(this->node_id) && node_id == start_node_id) {
+		// Another node with our ID already exists
+		start_node_id = (this->node_id += 1);
+	}
+
+	return CAN_OK;
 }
 
 void uCAN_IMPL::send(MessageID id, uint8_t len, uint8_t *message) {
