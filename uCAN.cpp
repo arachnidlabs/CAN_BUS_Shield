@@ -61,8 +61,10 @@ bool uCAN_IMPL::tryReceive(uCANMessage *message) {
 		}
 	} else {
 		switch(message->id.unicast.protocol) {
-		case 0: // YARP
+		case UCAN_PROTOCOL_YARP:
 			return !this->handleYARP(message);
+		case UCAN_PROTOCOL_RAP:
+			return !this->handleRAP(message);
 		}
 	}
 	return true;
