@@ -27,6 +27,8 @@
 #define UCAN_PRIORITY_NORMAL 2
 #define UCAN_PRIORITY_LOW 3
 #define UCAN_NODE_NOT_FOUND -1
+#define UCAN_PROTOCOL_YARP 0
+#define UCAN_PROTOCOL_RAP 1
 
 typedef union {
   struct {
@@ -64,19 +66,31 @@ typedef int16_t NodeAddress;
 typedef void (*PongHandler)(HardwareID hardware_id, uint8_t node_id);
 typedef void (*AddressChangeHandler)(uint8_t node_id);
 
+typedef uint8_t (*RegisterReadHandler)(NodeAddress address, uint8_t page, uint8_t reg);
+typedef void (*RegisterWriteHandler)(NodeAddress address, uint8_t page, uint8_t reg, uint8_t data);
+
+typedef struct {
+  uint8_t page;
+  RegisterReadHandler read;
+  RegisterWriteHandler write;
+} RegisterHandlers;
+
 class uCAN_IMPL {
 private:
     uint8_t node_id;
     HardwareID hardware_id;
     AddressChangeHandler address_change_handler;
+    RegisterHandlers *registers;
     uint16_t timeout;
 
     bool tryReceive(uCANMessage *message);
+    RegisterHandlers *findRegisterHandlers(uint8_t page);
 
 protected:
     MessageID makeUnicastMessageID(uint8_t priority, uint8_t protocol, uint8_t subfields, uint8_t recipient);
     MessageID makeBroadcastMessageID(uint8_t priority, uint8_t protocol, uint16_t subfields);
     bool handleYARP(uCANMessage *message);
+    bool handleRAP(uCANMessage *message);
     void send(MessageID id, uint8_t len, uint8_t *message);
 
 public:
@@ -92,5 +106,10 @@ public:
     bool ping(NodeAddress node, HardwareID *hardware_id);
     void registerAddressChangeHandler(AddressChangeHandler handler);
     void setAddress(HardwareID hardware_id, uint8_t node_id);
+
+    // RAP methods
+    void configureRegisters(RegisterHandlers *handlers);
+    bool readRegisters(NodeAddress node, uint8_t page, uint8_t reg, uint8_t len, uint8_t *data);
+    void writeRegisters(NodeAddress node, uint8_t page, uint8_t reg, uint8_t len, uint8_t *data);
 };
 extern uCAN_IMPL uCAN;
