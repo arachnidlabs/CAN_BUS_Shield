@@ -56,6 +56,10 @@ uint8_t uCAN_IMPL::begin(HardwareID hardware_id, uint8_t default_node_id) {
 	return CAN_OK;
 }
 
+uint8_t uCAN_IMPL::begin(HardwareID hardware_id) {
+	return this->begin(hardware_id, hardware_id.address[5]);
+}
+
 void uCAN_IMPL::send(MessageID id, uint8_t len, uint8_t *message) {
 	CAN.sendMsgBuf(id.raw, 1, len, message);
 }

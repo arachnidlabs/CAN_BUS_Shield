@@ -96,6 +96,7 @@ protected:
 public:
     uCAN_IMPL();
     uint8_t begin(HardwareID hardware_id, uint8_t node_id);
+    uint8_t begin(HardwareID hardware_id);
     bool receive();
     void setTimeout(uint16_t timeout);
 
