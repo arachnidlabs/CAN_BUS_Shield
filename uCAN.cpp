@@ -30,19 +30,28 @@ MessageID uCAN_IMPL::makeBroadcastMessageID(uint8_t priority, uint8_t protocol, 
 	return ret;
 }
 
-uint8_t uCAN_IMPL::begin(HardwareID hardware_id, uint8_t node_id) {
+uint8_t uCAN_IMPL::begin(HardwareID hardware_id, uint8_t default_node_id) {
 	this->hardware_id = hardware_id;
-	this->node_id = node_id;
 
 	uint8_t ret = CAN.begin(CAN_125KBPS);
 	if(ret != CAN_OK)
 		return ret;
 
-	uint8_t start_node_id = node_id; // Detect node ID assignment
-	while(this->ping(this->node_id) && node_id == start_node_id) {
-		// Another node with our ID already exists
-		start_node_id = (this->node_id += 1);
+	// Ask for a centrally assigned node ID
+	this->node_id = 0xFF;
+	NodeAddress node = this->getNodeFromHardwareID(this->hardware_id);
+	if(node != UCAN_NODE_NOT_FOUND) {
+		this->node_id = node;
+		return CAN_OK;
 	}
+
+	// Assign our own ID
+	default_node_id &= 0x7F;
+	while(this->ping(default_node_id)) {
+		// Another node with our ID already exists
+		default_node_id = (default_node_id + 1) & 0x7F;
+	}
+	this->node_id = default_node_id;
 
 	return CAN_OK;
 }
