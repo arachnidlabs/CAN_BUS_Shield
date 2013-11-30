@@ -229,7 +229,7 @@ bool uCAN_IMPL::handleRAP(uCANMessage *message) {
 		}
 
 		this->send(
-			this->makeUnicastMessageID(message->id.unicast.priority, UCAN_PROTOCOL_RAP, 0x30 | (len & 0x7), message->id.unicast.sender),
+			this->makeUnicastMessageID(message->id.unicast.priority, UCAN_PROTOCOL_RAP, 0x10 | (len & 0x7), message->id.unicast.sender),
 			len + 2, response);
 	}
 }
